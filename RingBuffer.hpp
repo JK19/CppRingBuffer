@@ -4,9 +4,6 @@
 #include <array>
 #include <utility>
 
-#include <iostream>
-#define Log(x) std::cout << x << std::endl;
-
 namespace ring
 {
 

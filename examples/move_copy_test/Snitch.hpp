@@ -2,22 +2,22 @@
 #define SNITCH_H
 
 #include <iostream>
-#define Log(x) std::cout << x << std::endl;
 
-template<std::size_t TSize>
 class Snitch
 {
 private:
+    void Log(std::string&& x) {
+        std::cout << x << std::endl;
+    }
 
 public:
     
     Snitch() 
     {
-        //Log("Snitch]> Empty constructor");
-        std::cout << "Snitch]> Empty constructor with template param: " << TSize << std::endl;
+        Log("Snitch]> Empty constructor");
     }
 
-    SnitchSnitch(const Snitch& other)
+    Snitch(const Snitch& other)
     {
         Log("Snitch]> Copy constructor");
     }
