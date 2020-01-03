@@ -7,7 +7,7 @@
 namespace ring
 {
 
-    enum RingError {
+    enum RingOpStatus {
         NONE = 0,
         EMPTY,
         FULL
@@ -22,9 +22,9 @@ namespace ring
         // T buffer[TBufferSize];
         std::array<T, TBufferSize> buffer;
         std::size_t buffer_size;
+        std::size_t elements;
         unsigned long head;
         unsigned long tail;
-        std::size_t elements;
 
     public:
 
@@ -75,44 +75,38 @@ namespace ring
 
         ////////////////////////////////////////////////////////////////////
         // Get/Put methods
-        RingError get(T& into)
+        RingOpStatus get(T& into)
         {
-            if (empty()) return RingError::EMPTY;
+            if ( empty() ) return RingOpStatus::EMPTY;
 
-            // T is not moveable copy assingment is called
+            // if T is not moveable copy assingment is called
             into = std::move( buffer[tail] );
-
-            elements--;
             
-            advanceTail();
+            advanceTail(); // decreases elements
 
-            return RingError::NONE;
+            return RingOpStatus::NONE;
         };
 
-        RingError put(const T& elem)
+        RingOpStatus put(const T& elem)
         {
-            if (full()) return RingError::FULL;
+            if ( full() ) return RingOpStatus::FULL;
 
             buffer[head] = elem;
 
-            elements++;
+            advanceHead(); // increases elements
 
-            advanceHead();
-
-            return RingError::NONE;
+            return RingOpStatus::NONE;
         };
 
-        RingError put(T&& elem)
+        RingOpStatus put(T&& elem)
         {
-            if ( full() ) return RingError::FULL;
+            if ( full() ) return RingOpStatus::FULL;
 
             buffer[head] = std::forward<T>( elem );
 
-            elements++;
+            advanceHead(); // increases elements
 
-            advanceHead();
-
-            return RingError::NONE;
+            return RingOpStatus::NONE;
         };
         ////////////////////////////////////////////////////////////////////
 
@@ -121,12 +115,15 @@ namespace ring
         bool empty() const {
           return elements == 0;
         };
+
         bool full() const {
             return elements == buffer_size;
         };
+
         std::size_t elems() const {
             return elements;
         };
+        
         std::size_t capacity() const {
           return buffer_size;
         };
@@ -135,10 +132,12 @@ namespace ring
     private:
         ////////////////////////////////////////////////////////////////////
         void advanceTail()  {
+            elements--;
             tail = (tail + 1) % buffer_size;
         };
 
         void advanceHead() {
+            elements++;
             head = (head + 1) % buffer_size;
         };
         ////////////////////////////////////////////////////////////////////
